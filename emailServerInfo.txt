@@ -1,0 +1,11 @@
+Thong tin email server
+Pop3 Server:	mail.tqteam.net
+Smtp Server:	mail.tqteam.net
+Email Test
+account : itool_web@tqteam.net
+pass : 1qazxsw2!A
+
+DB server
+112.213.89.49:3306
+user : tqteamne_admin
+pass : Admin123
