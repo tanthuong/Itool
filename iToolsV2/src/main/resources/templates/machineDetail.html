@@ -1,0 +1,526 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+   <head>
+      <title th:utext="${title}"></title>      
+      <th:block>
+	        <link rel="stylesheet" href="../../static/vendor/datatables/css/jquery.dataTables.css"
+	              th:href="@{/vendor/datatables/css/jquery.dataTables.css}"/>
+	    </th:block>
+	    <th:block>
+	        <link rel="stylesheet" href="../../static/vendor/jquery-ui/jquery-ui.css"
+	              th:href="@{/vendor/jquery-ui/jquery-ui.css}"/>
+	        <link rel="stylesheet" href="../../static/vendor/font-awesome/css/font-awesome.css"
+	              th:href="@{/vendor/font-awesome/css/font-awesome.css}"/>
+	        <link rel="stylesheet" href="../../static/css/style.min.css"
+	              th:href="@{/css/style.min.css}"/>
+	        <link rel="stylesheet" href="../../static/css/styles.css"
+	              th:href="@{/css/styles.css}"/>
+	    </th:block>
+	    <th:block>
+	        <script src="../../static/vendor/js/main.min.js"
+	                th:src="@{/vendor/js/main.min.js}"></script>
+	        <script src="../../static/vendor/jquery-ui/jquery-ui.js"
+	                th:src="@{/vendor/jquery-ui/jquery-ui.js}"></script>
+	        <script src="../../static/vendor/js/jquery.mask.js"
+	                th:src="@{/vendor/js/jquery.mask.js}"></script>
+	    </th:block>
+	    <th:block>
+	        <script src="../../static/vendor/datatables/js/jquery.dataTables.js"
+	                th:src="@{/vendor/datatables/js/jquery.dataTables.js}"></script>
+	        <script type="text/javascript" src="../../static/vendor/dataTables.buttons.min.js"
+	                th:src="@{/vendor/dataTables.buttons.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.flash.min.js"
+	                th:src="@{/vendor/buttons.flash.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/jszip.min.js"
+	                th:src="@{/vendor/jszip.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/pdfmake.min.js"
+	                th:src="@{/vendor/pdfmake.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/vfs_fonts.js"
+	                th:src="@{/vendor/vfs_fonts.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.html5.min.js"
+	                th:src="@{/vendor/buttons.html5.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.print.min.js"
+	                th:src="@{/vendor/buttons.print.min.js}">
+	        </script>
+	    </th:block>
+
+   </head>
+   <body>
+      <!-- Include _menu.html -->
+      <th:block th:include="/_header"></th:block>
+      	<th:block th:include="/_menu"></th:block>
+
+      <div class="page-title">Machine Details</div> 
+      
+      <div th:if="${errorMessage != null}"
+           th:utext="${errorMessage}" class="error">...</div>
+       
+      <form class="form-horizontal" th:action="@{/admin/machineDetail}" th:object="${machineForm}" method="POST">
+         <table style="width:100%">
+            <tr>
+               <td align="left">Machine Code</td>
+               <td align="left"><input type="text" th:field="*{machineID}" style="display:none"/><input type="text" th:field="*{machineCode}" /></td>
+               <td align="left">Machine Name</td>
+               <td align="left"><input type="text" th:field="*{machineName}" /> </td>
+            </tr>
+            	
+            <tr>
+            <td></td>
+               <td>
+                  <span th:if="${#fields.hasErrors('machineCode')}" th:errors="*{machineCode}">..</span>
+               </td>
+               <td></td>
+               <td>
+                  <span th:if="${#fields.hasErrors('machineName')}" th:errors="*{machineName}">..</span>
+               </td>
+            </tr>
+            <tr>
+               <td align="left">Model</td>
+               <td align="left"><input type="text" th:field="*{model}" /> </td>
+               <td align="left">Location</td>
+               <td align="left"><input type="text" th:field="*{location}" /> </td>
+            </tr>
+            <tr>
+               <td align="left">Description</td>
+               <td align="left"><input type="text" th:field="*{description}" /> </td>
+               <td align="left">Status</td>
+               <th:block sec:authorize="hasRole('ROLE_Admin')"><td align="left">
+                  <select th:field="*{active}">
+                     <option value=true>Active</option>
+                     <option value=false>Disable</option>
+                  </select>
+               </td></th:block>
+               <th:block sec:authorize="hasAnyRole('ROLE_SubAdmin', 'ROLE_Accounting')">
+               <td align="left"><span th:utext="${machineForm.active} ? 'Active' : 'Disabled'">...</span></td>
+               </th:block>
+            </tr>                     
+            <tr>
+               <td align="left">Company</td>
+               <th:block sec:authorize="hasRole('ROLE_Admin')"><td align="left">
+                  <select th:field="*{companyCode}">
+                     <option value=""> -- </option>
+                     <option th:each="company : ${companies}"
+                        th:value="${company.companyCode}"
+                        th:utext="${company.companyName}"/>
+                  </select>
+               <td>
+               <span th:if="${#fields.hasErrors('companyCode')}" th:errors="*{companyCode}">..</span></td>
+               </th:block>	
+               <th:block sec:authorize="hasAnyRole('ROLE_SubAdmin', 'ROLE_Accounting')">
+               <td align="left"><span th:utext="${thisCom.companyName}">...</span></td>
+               </th:block>
+            </tr>
+            <tr style="width:100%;align:center;" >
+               <td colspan="4" align="center">
+                  <button class="btn btn-primary text-uppercase" type="submit" id="save1" value="Save">SAVE</button>
+                  <a class="btn btn-default" th:href="@{/machineList}">BACK</a>
+               </td>
+            </tr>
+         </table>
+      </form>
+      
+	<div class="margin-top-l"></div>
+	<div class="page-title">Tray Index List</div> 
+	<form class="form-horizontal" th:action="@{/admin/assignToolTray}" th:object="${trayForm}" method="POST">
+	<input type="text" th:field="*{machineCode}" style="display:none"/>
+	<table id="trayIndexList" style="width:100%">
+	    <tbody>
+		    <tr>
+		         <td align="left"><b>+ Tray 01:</b> 
+		         	<!-- <select th:field="*{tray01}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray01}">...</span>
+                  	<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity01}">...</span>
+                  </td>
+		         <td align="left"><b>+ Tray 02:</b>
+		         	<!-- <select th:field="*{tray02}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select> -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray02}">...</span>
+                  	<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity02}">...</span> 
+                 </td>
+		         <td align="left"><b>+ Tray 03:</b>
+		         	<!-- <select th:field="*{tray03}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray03}">...</span>
+                  	<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity03}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 04:</b>
+		         	<!-- <select th:field="*{tray04}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray04}">...</span>
+                  	<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity04}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 05:</b>
+		         	<!-- <select th:field="*{tray05}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray05}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity05}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 06:</b>
+		         	<!-- <select th:field="*{tray06}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select> --> 
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray06}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity06}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 07:</b>
+		         	<!-- <select th:field="*{tray07}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select> -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray07}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity07}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 08:</b>
+		         	<!-- <select th:field="*{tray08}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray08}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity08}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 09:</b>
+		         	<!-- <select th:field="*{tray09}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray09}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity09}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 10:</b>
+		         	<!-- <select th:field="*{tray10}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray10}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity10}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 11:</b>
+		         	<!-- <select th:field="*{tray11}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray11}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity11}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 12:</b>
+		         	<!-- <select th:field="*{tray12}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray12}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity12}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 13:</b>
+		         	<!-- <select th:field="*{tray13}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray13}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity13}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 14:</b>
+		         	<!-- <select th:field="*{tray14}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray14}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity14}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 15:</b>
+		         	<!-- <select th:field="*{tray15}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select> --> 
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray15}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity15}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 16:</b>
+		         	<!-- <select th:field="*{tray16}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray16}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity16}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 17:</b>
+		         	<!-- <select th:field="*{tray17}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray17}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity17}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 18:</b>
+		         	<!-- <select th:field="*{tray18}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray18}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity18}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 19:</b>
+		         	<!-- <select th:field="*{tray19}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray19}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity19}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 20:</b>
+		         	<!-- <select th:field="*{tray20}">
+						<option value=""> -- </option>
+						<option th:each="tool : ${tools}"
+						   th:value="${tool.toolCode}"
+						   th:utext="${tool.toolCode}"/>
+                  	</select>  -->
+                  	<br><span>&nbsp;- tool: </span><span th:utext="*{tray20}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity20}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 21:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray21}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity21}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 22:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray22}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity22}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 23:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray23}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity23}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 24:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray24}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity24}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 25:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray25}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity25}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 26:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray26}">...</span> 
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity26}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 27:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray27}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity27}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 28:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray28}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity28}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 29:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray29}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity29}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 30:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray30}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity30}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 31:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray31}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity31}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 32:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray32}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity32}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 33:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray33}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity33}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 34:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray34}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity34}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 35:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray35}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity35}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 36:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray36}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity36}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 37:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray37}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity37}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 38:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray38}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity38}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 39:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray39}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity39}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 40:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray40}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity40}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 41:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray41}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity41}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 42:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray42}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity42}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 43:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray43}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity43}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 44:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray44}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity44}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 45:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray45}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity45}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 46:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray46}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity46}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 47:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray47}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity47}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 48:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray48}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity48}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 49:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray49}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity49}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 50:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray50}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity50}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 51:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray51}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity51}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 52:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray52}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity52}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 53:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray53}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity53}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 54:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray54}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity54}">...</span>
+                 </td>
+		    </tr>
+		    <tr>
+		         <td align="left"><b>+ Tray 55:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray55}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity55}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 56:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray56}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity56}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 57:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray57}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity57}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 58:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray58}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity58}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 59:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray59}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity59}">...</span>
+                 </td>
+		         <td align="left"><b>+ Tray 60:</b>
+		         	<br><span>&nbsp;- tool: </span><span th:utext="*{tray60}">...</span>
+					<br><span>&nbsp;- quantity: </span><span th:utext="*{quantity60}">...</span>
+                 </td>
+		    </tr>
+		    <!-- <tr style="width:100%;align:center;" >
+           <td colspan="6" align="center">
+              <button class="btn btn-primary text-uppercase full-width" id="save2" type="submit">Set tray</button>
+           </td>
+        </tr> -->		    
+	   	</tbody>
+	   	
+	</table>
+	</form>
+      <th:block th:include="/_footer"></th:block> 
+   </body>
+</html>
