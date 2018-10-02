@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <title th:utext="${title}"></title>
+      <th:block>
+	        <link rel="stylesheet" href="../../static/vendor/datatables/css/jquery.dataTables.css"
+	              th:href="@{/vendor/datatables/css/jquery.dataTables.css}"/>
+	    </th:block>
+	    <th:block>
+	        <link rel="stylesheet" href="../../static/vendor/jquery-ui/jquery-ui.css"
+	              th:href="@{/vendor/jquery-ui/jquery-ui.css}"/>
+	        <link rel="stylesheet" href="../../static/vendor/font-awesome/css/font-awesome.css"
+	              th:href="@{/vendor/font-awesome/css/font-awesome.css}"/>
+	        <link rel="stylesheet" href="../../static/css/style.min.css"
+	              th:href="@{/css/style.min.css}"/>
+	        <link rel="stylesheet" href="../../static/css/styles.css"
+	              th:href="@{/css/styles.css}"/>
+	    </th:block>
+	    <th:block>
+	        <script src="../../static/vendor/js/main.min.js"
+	                th:src="@{/vendor/js/main.min.js}"></script>
+	        <script src="../../static/vendor/jquery-ui/jquery-ui.js"
+	                th:src="@{/vendor/jquery-ui/jquery-ui.js}"></script>
+	        <script src="../../static/vendor/js/jquery.mask.js"
+	                th:src="@{/vendor/js/jquery.mask.js}"></script>
+	    </th:block>
+	    <th:block>
+	        <script src="../../static/vendor/datatables/js/jquery.dataTables.js"
+	                th:src="@{/vendor/datatables/js/jquery.dataTables.js}"></script>
+	        <script type="text/javascript" src="../../static/vendor/dataTables.buttons.min.js"
+	                th:src="@{/vendor/dataTables.buttons.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.flash.min.js"
+	                th:src="@{/vendor/buttons.flash.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/jszip.min.js"
+	                th:src="@{/vendor/jszip.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/pdfmake.min.js"
+	                th:src="@{/vendor/pdfmake.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/vfs_fonts.js"
+	                th:src="@{/vendor/vfs_fonts.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.html5.min.js"
+	                th:src="@{/vendor/buttons.html5.min.js}">
+	        </script>
+	        <script type="text/javascript" src="../../static/vendor/buttons.print.min.js"
+	                th:src="@{/vendor/buttons.print.min.js}">
+	        </script>
+	    </th:block> 
+      <style>
+         th, td {
+         padding: 5px;
+         }
+         td span  {
+         font-size:90%;
+         font-style: italic;
+         color: red;
+         }
+         .error {
+         color: red;
+         font-style: italic;
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Include _menu.html -->
+      <th:block th:include="/_header"></th:block>
+      	<th:block th:include="/_menu"></th:block>
+      	<!-- <th:block th:include="/_subMenuTool"></th:block> -->
+
+      <div class="page-title">Tool Detail</div> 
+      
+      <div th:if="${errorMessage != null}"
+           th:utext="${errorMessage}" class="error">...</div>
+       
+      <form th:action="@{/admin/toolDetail}" th:object="${toolForm}" method="POST">
+         <table>
+            <tr>
+               <td align="left">Tool Code</td>
+               <td align="left"><input type="text" th:field="*{toolCode}" readonly="readonly"/><input type="text" th:field="*{toolID}" style="display:none"/></td>
+               <td>
+                  <span th:if="${#fields.hasErrors('toolCode')}" th:errors="*{toolCode}">..</span>
+               </td>
+            </tr>
+            <tr>
+               <td align="left">Model</td>
+               <td align="left"><input type="text" th:field="*{model}" /> </td>
+            </tr>
+<!--             <tr> -->
+<!--                <td align="left">Barcode</td> -->
+<!--                <td align="left"><input type="text" th:field="*{barcode}" /> </td> -->
+<!--             </tr> -->
+            <tr>
+               <td align="left">Description</td>
+               <td align="left"><textarea  rows="4" cols="50" th:field="*{description}"></textarea></td>
+               <td>
+                  <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}">..</span>
+               </td>
+            </tr>           
+            <tr>
+               <td align="left">Status</td>
+               <td align="left">
+                  <select th:field="*{active}">
+                     <option value=true>Active</option>
+                     <option value=false>Disable</option>
+                  </select>
+               </td>
+               <td>
+                  <span th:if="${#fields.hasErrors('active')}" th:errors="*{active}">..</span>
+               </td>
+            </tr>              
+            
+            <tr>
+               <td colspan="3" align="left">
+                  <!-- <input type="submit" value="Save" />
+                  <input type="button" onclick="location.href='/ctidList'" value="Back To List" > -->
+                  <button class="btn btn-primary">SAVE</button>
+				  <a class="btn btn-default" th:href="@{/ctidList}">BACK</a>
+               </td>
+            </tr>
+         </table>
+      </form>
+      <th:block th:include="/_footer"></th:block> 
+   </body>
+</html>
